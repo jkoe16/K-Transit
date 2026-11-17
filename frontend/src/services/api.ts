@@ -1,4 +1,5 @@
 import axios from "axios";
+import type { ApiProvider, ServiceStatusMap } from "../types/service";
 
 const apiBaseUrl =
   import.meta.env.VITE_API_BASE_URL?.trim() ||
@@ -19,12 +20,36 @@ function requireBackendUrl() {
   }
 }
 
-export type ApiEnvelope = {
+export type ApiEnvelope<T = unknown> = {
   source: string;
   resource: string;
   fetched_at: string;
   cached: boolean;
-  data: unknown;
+  data: T;
+};
+
+export type TrafficIncident = {
+  type: string | null;
+  eventType: string | null;
+  eventDetailType: string | null;
+  startDate: string | null;
+  coordX: number | null;
+  coordY: number | null;
+  linkId: string | null;
+  roadName: string | null;
+  roadNo: string | null;
+  roadDrcType: string | null;
+  lanesBlockType: string | null;
+  lanesBlocked: string | null;
+  message: string | null;
+  endDate: string | null;
+};
+
+export type TrafficIncidentsData = {
+  resultCode: string;
+  resultMsg: string | null;
+  totalCount: string | null;
+  items: TrafficIncident[];
 };
 
 export async function fetchHealth() {
@@ -32,8 +57,14 @@ export async function fetchHealth() {
   const { data } = await api.get("/api/health");
   return data as {
     status: string;
-    services: Record<string, string>;
+    services: ServiceStatusMap;
   };
+}
+
+export async function fetchProviderCatalog() {
+  requireBackendUrl();
+  const { data } = await api.get<{ providers: ApiProvider[] }>("/api/providers");
+  return data.providers;
 }
 
 export async function fetchRegions(params: Record<string, string>) {
@@ -61,6 +92,38 @@ export async function fetchQuarterOd(params: Record<string, string>) {
   const { data } = await api.get<ApiEnvelope>("/api/statistics/quarter-od", {
     params,
   });
+  return data;
+}
+
+export async function fetchArrivalCities() {
+  requireBackendUrl();
+  const { data } = await api.get<ApiEnvelope>("/api/bus/arrival-cities");
+  return data;
+}
+
+export async function fetchArrivals(params: {
+  city_code: string;
+  node_id: string;
+}) {
+  requireBackendUrl();
+  const { data } = await api.get<ApiEnvelope>("/api/bus/arrivals", { params });
+  return data;
+}
+
+export async function fetchTrafficSpeed(params: Record<string, string>) {
+  requireBackendUrl();
+  const { data } = await api.get<ApiEnvelope>("/api/traffic/speed", { params });
+  return data;
+}
+
+export async function fetchTrafficIncidents(
+  params: Record<string, string>,
+): Promise<ApiEnvelope<TrafficIncidentsData>> {
+  requireBackendUrl();
+  const { data } = await api.get<ApiEnvelope<TrafficIncidentsData>>(
+    "/api/traffic/incidents",
+    { params },
+  );
   return data;
 }
 

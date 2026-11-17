@@ -1,13 +1,39 @@
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
+import type { ServiceStatusMap } from "../types/service";
 
-export default function MainLayout({ stcisStatus }: { stcisStatus: string }) {
+export default function MainLayout({
+  serviceStatus,
+  backendConfigured,
+}: {
+  serviceStatus: ServiceStatusMap;
+  backendConfigured: boolean;
+}) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <div className="app-shell">
-      <Sidebar stcisStatus={stcisStatus} />
+      <Sidebar
+        status={serviceStatus.stcis_bus_stops}
+        backendConfigured={backendConfigured}
+        open={mobileMenuOpen}
+        onNavigate={() => setMobileMenuOpen(false)}
+      />
+      {mobileMenuOpen && (
+        <button
+          type="button"
+          className="sidebar-backdrop"
+          aria-label="메뉴 닫기"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
       <main className="main-area">
-        <Header />
+        <Header
+          menuOpen={mobileMenuOpen}
+          onMenuToggle={() => setMobileMenuOpen((open) => !open)}
+        />
         <Outlet />
         <footer className="footer">
           <span>© 2026 K-Transit</span>

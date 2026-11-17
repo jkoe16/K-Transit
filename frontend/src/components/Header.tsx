@@ -9,11 +9,28 @@ const pageNames: Record<string, string> = {
   "/statistics": "통계",
 };
 
-export default function Header() {
+export default function Header({
+  menuOpen,
+  onMenuToggle,
+}: {
+  menuOpen: boolean;
+  onMenuToggle: () => void;
+}) {
   const { pathname } = useLocation();
 
   return (
     <header className="topbar">
+      <button
+        className="mobile-menu-button"
+        type="button"
+        aria-label={menuOpen ? "메뉴 닫기" : "메뉴 열기"}
+        aria-expanded={menuOpen}
+        onClick={onMenuToggle}
+      >
+        <span />
+        <span />
+        <span />
+      </button>
       <div className="breadcrumbs">
         <span>K-Transit</span>
         <span className="crumb-slash">/</span>

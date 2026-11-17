@@ -2,10 +2,16 @@ import { useState, type ChangeEvent, type FormEvent } from "react";
 import { fetchQuarterOd } from "../services/api";
 import type { RequestState } from "../types/api";
 import ApiResult from "../components/ApiResult";
+import { ApiStatusRow } from "../components/ServiceCards";
 import ToolPage from "../components/ToolPage";
 import { runRequest } from "../utils/request";
+import type { ServiceStatusMap } from "../types/service";
 
-export default function Statistics() {
+export default function Statistics({
+  serviceStatus,
+}: {
+  serviceStatus: ServiceStatusMap;
+}) {
   const [form, setForm] = useState({ oprat_date: "", stg_emd_cd: "", arr_emd_cd: "" });
   const [state, setState] = useState<RequestState>({ loading: false, error: "", result: null });
   const update = (key: keyof typeof form) => (event: ChangeEvent<HTMLInputElement>) =>
@@ -21,13 +27,17 @@ export default function Statistics() {
       <div className="tool-card">
         <div className="tool-card-heading"><span className="tool-card-icon">▥</span><div><h2>통계 조회 조건</h2><p>필수 입력값은 STCIS API 요청변수에 전달됩니다.</p></div></div>
         <form className="form-grid stats-form" onSubmit={submit}>
-          <label>운행일자<input type="date" value={form.oprat_date} onChange={update("oprat_date")} required /></label>
+          <label>운행일자 (opratDate)<input value={form.oprat_date} onChange={update("oprat_date")} placeholder="STCIS 명세의 날짜 형식" required /></label>
           <label>출발 읍면동 코드<input value={form.stg_emd_cd} onChange={update("stg_emd_cd")} required /></label>
           <label>도착 읍면동 코드<input value={form.arr_emd_cd} onChange={update("arr_emd_cd")} required /></label>
           <button className="primary-button form-submit" disabled={state.loading}>통계 조회 <span>→</span></button>
         </form>
-        <p className="form-hint">차트와 표는 검증된 응답 필드 확인 후 추가됩니다. 현재는 실제 API 원본 응답을 표시합니다.</p>
+        <p className="form-hint">운행일자 값은 변환하지 않고 그대로 전달합니다. 날짜 형식과 응답 필드는 실제 API 명세·응답 확인 후 정리합니다.</p>
       </div>
+      <ApiStatusRow
+        label="STCIS 15분 OD 통계"
+        state={serviceStatus.stcis_statistics}
+      />
       <ApiResult state={state} />
     </ToolPage>
   );

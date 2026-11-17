@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import type { ServiceStatus } from "../types/service";
+import { lastSuccessLabel, serviceStatusLabel } from "../utils/serviceStatus";
 
 export function FeatureCard({
   to,
@@ -7,6 +9,7 @@ export function FeatureCard({
   description,
   tag,
   muted = false,
+  status,
 }: {
   to: string;
   icon: string;
@@ -14,12 +17,24 @@ export function FeatureCard({
   description: string;
   tag: string;
   muted?: boolean;
+  status?: ServiceStatus;
 }) {
+  const isMuted = muted || (status !== undefined && status.status !== "connected");
+  const isTagMuted = status ? status.status !== "connected" : muted;
+  const currentLabel = status ? serviceStatusLabel(status.status) : tag;
   return (
-    <Link to={to} className={`feature-card${muted ? " muted" : ""}`}>
+    <Link
+      to={to}
+      className={`feature-card${isMuted ? " muted" : ""}`}
+    >
       <div className="feature-top">
         <span className="feature-icon">{icon}</span>
-        <span className={`feature-tag${muted ? " tag-muted" : ""}`}><i />{tag}</span>
+        <span
+          className={`feature-tag${isTagMuted ? " tag-muted" : ""}`}
+        >
+          <i />
+          {currentLabel}
+        </span>
       </div>
       <h3>{title}</h3>
       <p>{description}</p>
@@ -41,6 +56,33 @@ export function StatusRow({
     <div className="status-row">
       <span><i className={active ? "status-dot live" : "status-dot"} />{label}</span>
       <small className={active ? "connected" : ""}>{value}</small>
+    </div>
+  );
+}
+
+export function ApiStatusRow({
+  label,
+  state,
+}: {
+  label: string;
+  state?: ServiceStatus;
+}) {
+  const current: ServiceStatus = state ?? {
+    status: "waiting",
+    last_success_at: null,
+  };
+  const connected = current.status === "connected";
+
+  return (
+    <div className="api-status-row">
+      <span className="api-status-label">
+        <i className={`status-dot${connected ? " live" : ""}`} />
+        {label}
+      </span>
+      <span className={`api-status-value status-${current.status}`}>
+        {serviceStatusLabel(current.status)}
+      </span>
+      <small>{lastSuccessLabel(current)}</small>
     </div>
   );
 }

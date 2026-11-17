@@ -1,6 +1,12 @@
 import Loading from "./Loading";
 import type { RequestState } from "../types/api";
 
+function hasNoData(data: unknown): boolean {
+  if (data === null || data === undefined) return true;
+  if (Array.isArray(data)) return data.length === 0;
+  return typeof data === "object" && Object.keys(data).length === 0;
+}
+
 export default function ApiResult({
   state,
   title = "조회 결과",
@@ -24,7 +30,11 @@ export default function ApiResult({
       {state.result && (
         <>
           <p className="fetched-at">데이터 조회 시각: {new Date(state.result.fetched_at).toLocaleString("ko-KR")}</p>
-          <pre className="json-result">{JSON.stringify(state.result.data, null, 2)}</pre>
+          {hasNoData(state.result.data) ? (
+            <div className="empty-state">API 응답에 표시할 데이터가 없습니다.</div>
+          ) : (
+            <pre className="json-result">{JSON.stringify(state.result.data, null, 2)}</pre>
+          )}
         </>
       )}
     </section>

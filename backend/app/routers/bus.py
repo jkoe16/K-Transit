@@ -3,6 +3,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Query
 
 from app.services.stcis_service import fetch_stcis
+from app.services.tago_service import fetch_tago
 
 router = APIRouter(prefix="/api/bus", tags=["bus"])
 
@@ -66,7 +67,23 @@ async def get_bus_positions() -> None:
 
 
 @router.get("/arrivals")
-async def get_bus_arrivals() -> None:
-    from app.services.tago_service import require_verified_operation
+async def get_bus_arrivals(
+    city_code: str = Query(..., min_length=1, alias="city_code"),
+    node_id: str = Query(..., min_length=1, alias="node_id"),
+    page_no: int = Query(default=1, ge=1),
+    num_of_rows: int = Query(default=10, ge=1, le=100),
+) -> dict[str, Any]:
+    return await fetch_tago(
+        "bus_arrivals",
+        {
+            "cityCode": city_code,
+            "nodeId": node_id,
+            "pageNo": page_no,
+            "numOfRows": num_of_rows,
+        },
+    )
 
-    require_verified_operation("버스 도착정보")
+
+@router.get("/arrival-cities")
+async def get_arrival_cities() -> dict[str, Any]:
+    return await fetch_tago("arrival_cities", {})

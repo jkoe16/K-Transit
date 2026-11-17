@@ -1,10 +1,27 @@
-import { StatusRow, UnavailableCard } from "../components/ServiceCards";
+import { useSearchParams } from "react-router-dom";
+import {
+  ApiStatusRow,
+  StatusRow,
+  UnavailableCard,
+} from "../components/ServiceCards";
 import ToolPage from "../components/ToolPage";
+import type { ServiceStatusMap } from "../types/service";
 
-export default function Subway() {
+export default function Subway({
+  serviceStatus,
+}: {
+  serviceStatus: ServiceStatusMap;
+}) {
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get("query")?.trim();
+
   return (
     <ToolPage eyebrow="SUBWAY INFORMATION" title="지하철 정보" description="전국 지하철 정보를 제공하기 위한 연동 준비 상태입니다.">
-      <UnavailableCard title="상세 명세 확인 · 연동 대기" text="TAGO 지하철정보의 역 검색·시간표 기능은 공식 상세 명세를 확인했으며, 실제 API 연결과 응답 검증은 아직 진행되지 않았습니다. 실시간 지하철 도착정보는 별도 제공 API 확인이 필요합니다." />
+      <UnavailableCard
+        title={query ? `"${query}" 지하철역 검색 · 연동 대기` : "상세 명세 확인 · 연동 대기"}
+        text="TAGO 지하철정보의 실제 요청·응답 검증 전에는 역 검색이나 도착정보를 표시하지 않습니다. 실시간 지하철 도착정보는 별도 제공 API 확인이 필요합니다."
+      />
+      <ApiStatusRow label="지하철 정보" state={serviceStatus.subway} />
       <div className="tool-card source-list">
         <h2>연동 대기 항목</h2>
         <StatusRow label="역 검색·시간표" value="명세 확인 · 연동 대기" />

@@ -1,13 +1,20 @@
 import { useState, type FormEvent } from "react";
+import { useSearchParams } from "react-router-dom";
 import { fetchRouteStops } from "../services/api";
 import type { RequestState } from "../types/api";
 import ApiResult from "../components/ApiResult";
 import ToolPage from "../components/ToolPage";
-import { UnavailableCard } from "../components/ServiceCards";
+import { ApiStatusRow, UnavailableCard } from "../components/ServiceCards";
 import { runRequest } from "../utils/request";
+import type { ServiceStatusMap } from "../types/service";
 
-export default function RouteSearch() {
-  const [route, setRoute] = useState("");
+export default function RouteSearch({
+  serviceStatus,
+}: {
+  serviceStatus: ServiceStatusMap;
+}) {
+  const [searchParams] = useSearchParams();
+  const [route, setRoute] = useState(searchParams.get("route_nm") ?? "");
   const [state, setState] = useState<RequestState>({ loading: false, error: "", result: null });
 
   async function submit(event: FormEvent) {
@@ -29,6 +36,14 @@ export default function RouteSearch() {
           <button className="primary-button" disabled={state.loading}>경유지 조회 <span>→</span></button>
         </form>
       </div>
+      <ApiStatusRow
+        label="STCIS 노선 경유지 조회"
+        state={serviceStatus.stcis_bus_routes}
+      />
+      <ApiStatusRow
+        label="출발·도착 경로 탐색"
+        state={serviceStatus.route_search}
+      />
       <ApiResult state={state} />
       <UnavailableCard title="경로 탐색" text="출발지와 도착지 간 대중교통 경로를 제공하는 검증된 API가 확인되지 않아 아직 검색할 수 없습니다." />
     </ToolPage>

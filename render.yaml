@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: k-transit-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.10
+      - key: CORS_ORIGINS
+        value: https://jkoe16.github.io
+      - key: API_CACHE_TTL_SECONDS
+        value: "60"
+      - key: STCIS_API_KEY
+        sync: false
+      - key: TAGO_API_KEY
+        sync: false
+      - key: KLID_API_KEY
+        sync: false
+      - key: TRAFFIC_API_KEY
+        sync: false
