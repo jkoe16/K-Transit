@@ -276,3 +276,148 @@ a{color:inherit;text-decoration:none}
 .map-result-summary{margin:12px 0 0;color:#52637a;font-size:12px}
 .provider-card>header h2{margin:0}
 @media(max-width:760px){.region-select-grid{grid-template-columns:1fr}.region-select-error{align-items:flex-start;flex-direction:column}}
+
+/* Wider desktop canvas with a compact citizen-first home page. */
+.page-content{width:min(1680px,100%);padding:40px clamp(24px,3.1vw,56px) 56px}
+.topbar{padding-inline:clamp(24px,3.1vw,56px)}
+.breadcrumbs{font-size:14px}
+.footer{margin-inline:clamp(24px,3.1vw,56px);gap:12px;flex-wrap:wrap;font-size:12px}
+.nav-item{height:48px;font-size:15px}
+.side-label{font-size:12px}
+.home-page{display:grid;align-content:start;gap:32px}
+.home-hero{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);align-items:center;gap:clamp(24px,3vw,48px);padding:clamp(28px,3.5vw,56px);border:1px solid #e3ecf8;border-radius:20px;background:linear-gradient(112deg,#eef5ff 1%,#f8fbff 60%,#e8f1ff)}
+.home-intro h1{margin:14px 0 12px;font-size:clamp(34px,3.1vw,50px);line-height:1.2;letter-spacing:-1.6px}
+.home-intro h1 span{color:#1769e0}
+.home-intro p{max-width:470px;margin:0;color:#526782;font-size:16px;line-height:1.7}
+.search-card{margin:0;padding:clamp(22px,2.4vw,36px);border-radius:16px;box-shadow:0 12px 30px #213c620b}
+.search-card-title{gap:14px;margin-bottom:22px}
+.search-symbol{width:42px;height:42px;font-size:25px}
+.search-card-title h2{margin-bottom:6px;font-size:20px}
+.search-card-title p{color:#6e7f94;font-size:14px;line-height:1.5}
+.home-search{display:grid;grid-template-columns:minmax(0,1fr) 180px auto;gap:10px}
+.search-input-look{height:54px;padding-inline:15px;font-size:15px}
+.search-input-look input{font-size:16px}
+.search-type select{width:100%;height:54px;padding-inline:12px;font-size:14px}
+.home-search .primary-button{min-height:54px;padding-inline:20px;font-size:15px}
+.home-primary{min-width:0}
+.section-heading{margin-bottom:17px}
+.section-heading h2{font-size:24px;letter-spacing:-.7px}
+.section-heading .eyebrow{font-size:12px}
+.home-service-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.home-service-card{display:flex;min-width:0;min-height:218px;flex-direction:column;align-items:flex-start;padding:24px;border:1px solid #e1e9f3;border-radius:16px;background:#fff;color:#1b2c43}
+.home-service-card:hover{border-color:#b8cfee;box-shadow:0 8px 24px #1b3c620e}
+.home-service-icon{display:grid;width:44px;height:44px;place-items:center;border-radius:12px;background:#edf4ff;color:#1769e0;font-size:20px;font-weight:700}
+.home-service-label{margin-top:20px;color:#1769e0;font-size:13px;font-weight:700}
+.home-service-card>strong{margin-top:5px;font-size:21px;letter-spacing:-.4px}
+.home-service-card>p{margin:8px 0 16px;color:#667990;font-size:14px;line-height:1.6}
+.home-card-action{display:inline-flex;align-items:center;gap:9px;margin-top:auto;color:#1769e0;font-size:14px;font-weight:700}
+.home-coming-soon{color:#7b899a}
+.home-map-card{display:grid;grid-template-columns:minmax(125px,.8fr) minmax(0,1.2fr);gap:16px;padding:16px}
+.home-map-copy{display:flex;min-width:0;flex-direction:column;align-items:flex-start;padding:8px 0 8px 4px}
+.home-map-copy .home-service-label{margin-top:15px}
+.home-map-copy>strong{margin-top:5px;font-size:20px}
+.home-map-preview{position:relative;min-width:0;min-height:186px;overflow:hidden;border-radius:12px;background:#e8f0f8}
+.home-map-preview .mini-map{height:100%;min-height:186px}
+.home-map-preview .map-empty-label{right:8px;left:8px;bottom:8px;max-width:calc(100% - 16px);white-space:normal}
+.home-more{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 4px;border-top:1px solid #dfe7f1}
+.home-more .eyebrow{font-size:12px}
+.home-more h2{margin:5px 0 0;font-size:19px}
+.home-more>a{display:inline-flex;align-items:center;gap:10px;padding:13px 17px;border:1px solid #d6e3f3;border-radius:9px;background:#fff;color:#1769e0;font-size:14px;font-weight:700}
+.tool-page .page-title{margin-bottom:28px}
+.page-title .eyebrow{font-size:12px}
+.page-title h1{margin:9px 0 8px;font-size:clamp(30px,2.4vw,38px);letter-spacing:-1px}
+.page-title>p{font-size:15px;line-height:1.6}
+.tool-card,.result-panel{padding:clamp(20px,2vw,30px);margin-bottom:18px;border-radius:15px}
+.tool-card-heading{gap:14px;margin-bottom:22px}
+.tool-card-icon{width:44px;height:44px;border-radius:12px;font-size:19px}
+.tool-card-heading h2,.result-heading h2{font-size:19px}
+.tool-card-heading p{font-size:14px;line-height:1.6}
+.form-grid{gap:18px}
+.form-grid label,.inline-form label{font-size:14px}
+.form-grid input,.inline-form input,.form-grid select,.inline-form select{height:48px;font-size:15px}
+.primary-button{min-height:48px;padding-inline:18px;font-size:14px}
+.secondary-button{min-height:44px;padding-inline:15px;font-size:13px}
+.form-hint{font-size:13px;line-height:1.6}
+.error-state strong{font-size:15px}
+.error-state p,.empty-state{font-size:14px;line-height:1.6}
+.fetched-at{font-size:13px}
+.unavailable-card{gap:16px;padding:18px 20px;border-radius:13px}
+.unavailable-card strong{font-size:15px}
+.unavailable-card p{font-size:13px;line-height:1.6}
+.full-map{height:min(68vh,720px);min-height:420px}
+.map-legend{gap:20px;padding:16px 2px;font-size:13px}
+.region-select-group h3{font-size:15px}
+.region-select-grid{gap:14px}
+.region-select-grid label{font-size:13px}
+.region-select-grid select{height:48px;font-size:15px}
+.region-select-message{font-size:13px}
+
+@media(min-width:761px) and (max-width:1199px){
+  .page-content{padding-inline:28px}
+  .home-hero{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:24px;padding:30px}
+  .home-service-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .home-service-card{min-height:190px}
+}
+
+@media(min-width:1800px){
+  .home-service-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+
+@media(max-width:760px){
+  .page-content{width:100%;padding:24px 18px 36px}
+  .topbar{padding-inline:16px}
+  .breadcrumbs{font-size:13px}
+  .home-page{gap:24px}
+  .home-hero{grid-template-columns:minmax(0,1fr);gap:22px;padding:25px 20px;border-radius:16px}
+  .home-intro h1{font-size:clamp(32px,8vw,40px)}
+  .home-intro p{font-size:15px}
+  .search-card{padding:20px 17px}
+  .search-card-title h2{font-size:18px}
+  .search-card-title p{font-size:13px}
+  .home-search{grid-template-columns:minmax(0,1fr) auto;gap:9px}
+  .search-input-look{grid-column:1/-1;height:50px}
+  .search-type select{height:48px;max-width:none;padding-inline:10px;font-size:13px}
+  .home-search .primary-button{min-height:48px;font-size:14px}
+  .section-heading h2{font-size:21px}
+  .home-service-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+  .home-service-card{min-height:190px;padding:17px}
+  .home-service-icon{width:39px;height:39px;font-size:18px}
+  .home-service-label{margin-top:15px;font-size:12px}
+  .home-service-card>strong{font-size:17px}
+  .home-service-card>p{font-size:13px}
+  .home-card-action{font-size:13px}
+  .home-map-card{grid-column:1/-1;grid-template-columns:minmax(115px,.8fr) minmax(0,1.2fr);min-height:190px;padding:13px}
+  .home-map-copy>strong{font-size:18px}
+  .home-map-preview,.home-map-preview .mini-map{min-height:170px}
+  .home-more{align-items:flex-start;flex-direction:column;padding:18px 0}
+  .home-more h2{font-size:17px}
+  .home-more>a{font-size:13px}
+  .tool-page .page-title{margin-bottom:20px}
+  .page-title h1{font-size:28px}
+  .page-title>p{font-size:14px}
+  .tool-card,.result-panel{padding:18px;margin-bottom:14px}
+  .tool-card-heading h2,.result-heading h2{font-size:17px}
+  .tool-card-heading p{font-size:13px}
+  .form-grid{gap:13px}
+  .form-grid label,.inline-form label{font-size:13px}
+  .form-grid input,.inline-form input,.form-grid select,.inline-form select{height:46px;font-size:14px}
+  .primary-button{min-height:46px;font-size:14px}
+  .full-map{height:58vh;min-height:340px;max-height:560px}
+  .map-legend{gap:10px 15px;font-size:12px}
+  .footer{margin-inline:18px;padding:15px 0 20px;font-size:11px}
+}
+
+@media(max-width:420px){
+  .page-content{padding-inline:14px}
+  .home-hero{padding-inline:16px}
+  .home-service-card{padding:14px}
+  .home-service-card>p{font-size:12px}
+  .home-map-card{grid-template-columns:minmax(96px,.75fr) minmax(0,1.25fr);gap:10px;padding:10px}
+  .home-map-preview,.home-map-preview .mini-map{min-height:155px}
+  .search-card{padding-inline:14px}
+  .footer{margin-inline:14px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .feature-card,.primary-button,.nav-item{transition:none}
+}

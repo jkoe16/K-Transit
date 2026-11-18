@@ -24,7 +24,7 @@ export default function ApiResult({
       {state.error && <div className="error-state"><strong>정보를 불러오지 못했어요</strong><p>{state.error}</p></div>}
       {state.result && (
         <>
-          <p className="fetched-at">정보 갱신 시각: {new Date(state.result.fetched_at).toLocaleString("ko-KR")}</p>
+          <p className="fetched-at">마지막 업데이트: {new Date(state.result.fetched_at).toLocaleString("ko-KR")}</p>
           {hasNoData(state.result.data) ? (
             <div className="empty-state">표시할 정보가 없습니다.</div>
           ) : (

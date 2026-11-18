@@ -1,12 +1,10 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import ApiResult from "../components/ApiResult";
-import { ApiStatusRow } from "../components/ServiceCards";
 import RegionSelect, { type RegionCodes } from "../components/RegionSelect";
 import ToolPage from "../components/ToolPage";
 import { fetchArrivalCities, fetchArrivals, fetchStops } from "../services/api";
 import type { RequestState } from "../types/api";
-import type { ServiceStatusMap } from "../types/service";
 import { runRequest } from "../utils/request";
 
 const initialState: RequestState = { loading: false, error: "", result: null };
@@ -60,11 +58,7 @@ function formatArrivalSeconds(value: string): string {
   return minutes ? `${minutes}분 ${remainingSeconds}초` : `${remainingSeconds}초`;
 }
 
-export default function Bus({
-  serviceStatus,
-}: {
-  serviceStatus: ServiceStatusMap;
-}) {
+export default function Bus() {
   const [searchParams] = useSearchParams();
   const [form, setForm] = useState({
     sttn_arsno: searchParams.get("sttn_arsno") ?? "",
@@ -195,14 +189,6 @@ export default function Bus({
         </form>
       </div>
 
-      <ApiStatusRow
-        label="지역 정보"
-        state={serviceStatus.stcis_regions}
-      />
-      <ApiStatusRow
-        label="버스 정류장"
-        state={serviceStatus.stcis_bus_stops}
-      />
       <ApiResult state={state} title="정류장 검색" />
       {state.result && !state.error && (
         <section className="tool-card stop-results">
@@ -230,14 +216,6 @@ export default function Bus({
             <p>지역과 정류장 번호를 선택해 도착 예정 정보를 확인하세요.</p>
           </div>
         </div>
-        <ApiStatusRow
-          label="버스 도착 정보"
-          state={serviceStatus.bus_arrivals}
-        />
-        <ApiStatusRow
-          label="지역 목록"
-          state={serviceStatus.bus_arrival_cities}
-        />
         <form className="form-grid arrival-form" onSubmit={searchArrivals}>
           {arrivalCityOptions.length ? (
             <label>

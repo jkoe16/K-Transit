@@ -1,25 +1,17 @@
 import { Link, NavLink } from "react-router-dom";
-import type { ServiceStatus } from "../types/service";
-import { serviceStatusLabel } from "../utils/serviceStatus";
 
 const navigation = [
   { to: "/", label: "홈", icon: "⌂" },
   { to: "/bus", label: "버스", icon: "▰" },
   { to: "/subway", label: "지하철", icon: "▤" },
-  { to: "/routes", label: "버스 노선", icon: "↗" },
-  { to: "/map", label: "지도", icon: "◎" },
-  { to: "/statistics", label: "이동 통계", icon: "▥" },
-  { to: "/providers", label: "이용 안내", icon: "i" },
+  { to: "/routes", label: "길찾기", icon: "↗" },
+  { to: "/map", label: "교통 지도", icon: "◎" },
 ];
 
 export default function Sidebar({
-  status,
-  backendConfigured,
   open,
   onNavigate,
 }: {
-  status?: ServiceStatus;
-  backendConfigured: boolean;
   open: boolean;
   onNavigate: () => void;
 }) {
@@ -32,7 +24,7 @@ export default function Sidebar({
           <small>전국 대중교통 통합정보</small>
         </span>
       </Link>
-      <div className="side-label">교통 서비스</div>
+      <div className="side-label">주요 서비스</div>
       <nav className="nav-list" aria-label="주요 메뉴">
         {navigation.map((item) => (
           <NavLink
@@ -47,20 +39,17 @@ export default function Sidebar({
           </NavLink>
         ))}
       </nav>
-      <div className="sidebar-bottom">
-        <div className="sidebar-status">
-          <span className={`status-dot ${status?.status === "connected" ? "live" : ""}`} />
-          <div>
-            <strong>교통정보 이용</strong>
-            <small>
-              {!backendConfigured
-                ? "정보 확인 중"
-                : serviceStatusLabel(status?.status ?? "waiting")}
-            </small>
-          </div>
-        </div>
-        <p>공공데이터 기반 전국 교통정보</p>
-      </div>
+      <div className="side-label side-label-secondary">더 보기</div>
+      <nav className="nav-list secondary-nav" aria-label="추가 메뉴">
+        <NavLink
+          className={({ isActive }) => `nav-item${isActive ? " active" : ""}`}
+          to="/statistics"
+          onClick={onNavigate}
+        >
+          <span className="nav-icon">▥</span>
+          지역 이동 통계
+        </NavLink>
+      </nav>
     </aside>
   );
 }

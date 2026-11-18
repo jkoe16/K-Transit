@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 type SearchType = "stop-ars" | "stop-name" | "route" | "subway";
 
@@ -25,12 +25,12 @@ export default function SearchBar() {
   }
 
   return (
-    <section className="search-card">
+    <section className="search-card" aria-labelledby="home-search-title">
       <div className="search-card-title">
         <span className="search-symbol">⌕</span>
         <div>
-          <h2>정류장이나 노선을 찾아보세요</h2>
-          <p>정류장, 버스 노선, 지하철역 정보를 검색할 수 있어요.</p>
+          <h2 id="home-search-title">대중교통 통합 검색</h2>
+          <p>정류장과 버스 노선을 검색하고, 지하철 정보 제공 상태를 확인하세요.</p>
         </div>
       </div>
       <form className="home-search" onSubmit={submit}>
@@ -42,13 +42,14 @@ export default function SearchBar() {
             onChange={(event) => setQuery(event.target.value)}
             placeholder={
               type === "stop-ars"
-                ? "정류장 번호"
+                ? "정류장 번호 입력"
                 : type === "stop-name"
-                  ? "정류장 이름"
+                  ? "정류장 이름 입력"
                 : type === "route"
-                  ? "버스 노선 번호나 이름"
-                  : "지하철역 이름"
+                  ? "버스 노선 입력"
+                  : "지하철역 정보는 준비 중"
             }
+            disabled={type === "subway"}
           />
         </label>
         <label className="search-type">
@@ -60,20 +61,13 @@ export default function SearchBar() {
             <option value="stop-ars">정류장 번호</option>
             <option value="stop-name">정류장 이름</option>
             <option value="route">버스 노선</option>
-            <option value="subway">지하철역</option>
+            <option value="subway" disabled>지하철역 (준비 중)</option>
           </select>
         </label>
-        <button type="submit" className="primary-button">
+        <button type="submit" className="primary-button home-search-submit">
           검색하기 <span>→</span>
         </button>
       </form>
-      <div className="search-tags">
-        <span>빠른 메뉴</span>
-        <Link to="/bus">버스 정류장</Link>
-        <Link to="/subway">지하철</Link>
-        <Link to="/routes">버스 노선</Link>
-        <Link to="/map">교통 지도</Link>
-      </div>
     </section>
   );
 }

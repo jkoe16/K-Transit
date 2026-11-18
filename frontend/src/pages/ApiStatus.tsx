@@ -1,90 +1,26 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import axios from "axios";
+import { useCallback, useEffect, useState } from "react";
 import ToolPage from "../components/ToolPage";
-import { errorMessage, fetchProviderCatalog } from "../services/api";
-import type { ApiProvider, ServiceStatus } from "../types/service";
+import { fetchHealth, fetchProviderCatalog } from "../services/api";
+import type { ApiProvider, ServiceStatusMap } from "../types/service";
 import { lastSuccessLabel, serviceStatusLabel } from "../utils/serviceStatus";
 
-const serviceGroups = [
-  { title: "지역 정보", providerIds: ["stcis_regions"] },
-  {
-    title: "버스 정류장",
-    providerIds: ["stcis_bus_stops", "national_bus_stops", "tago_bus_stops"],
-  },
-  {
-    title: "버스 노선",
-    providerIds: ["stcis_bus_routes", "tago_bus_routes"],
-  },
-  {
-    title: "버스 도착 정보",
-    providerIds: ["tago_bus_arrivals", "busan_bus", "daegu_bus"],
-  },
-  {
-    title: "버스 위치",
-    providerIds: [
-      "tago_bus_positions",
-      "klid_bus_positions",
-      "seoul_bus_positions",
-      "incheon_bus_positions",
-      "daejeon_bus_positions",
-    ],
-  },
-  {
-    title: "지하철 정보",
-    providerIds: [
-      "tago_subway",
-      "seoul_subway_arrivals",
-      "daejeon_subway_ridership",
-    ],
-  },
-  {
-    title: "도로 교통정보",
-    providerIds: [
-      "its_traffic_speed",
-      "its_traffic_congestion",
-      "its_traffic_incidents",
-    ],
-  },
-  {
-    title: "교통 카메라",
-    providerIds: ["national_cctv", "national_cctv_video"],
-  },
-  {
-    title: "이동 통계",
-    providerIds: ["stcis_statistics", "gyeonggi_bus_ridership"],
-  },
-  { title: "전기차 충전소", providerIds: ["keco_ev_chargers"] },
-  {
-    title: "주차 정보",
-    providerIds: ["busan_parking", "daejeon_parking"],
-  },
-] as const;
-
-function groupStatus(providers: ApiProvider[], providerIds: readonly string[]) {
-  const statuses = providers
-    .filter((provider) => providerIds.includes(provider.id))
-    .map((provider) => provider.status);
-  const latestSuccess = statuses
-    .map((status) => status.last_success_at)
-    .filter((value): value is string => Boolean(value))
-    .sort((left, right) => Date.parse(right) - Date.parse(left))[0];
-
-  const status: ServiceStatus["status"] = statuses.some(
-    (item) => item.status === "connected",
-  )
-    ? "connected"
-    : statuses.some((item) => item.status === "no_data")
-      ? "no_data"
-      : statuses.some((item) =>
-            ["error", "auth_error", "invalid_response"].includes(item.status),
-          )
-        ? "error"
-        : "waiting";
-
-  return { status, last_success_at: latestSuccess ?? null };
+function diagnosticErrorMessage(error: unknown): string {
+  if (axios.isAxiosError(error)) {
+    const detail = error.response?.data?.detail;
+    return typeof detail === "string"
+      ? detail
+      : error.message || "진단 요청에 실패했습니다.";
+  }
+  return error instanceof Error
+    ? error.message
+    : "알 수 없는 진단 오류가 발생했습니다.";
 }
 
 export default function ApiStatus() {
   const [providers, setProviders] = useState<ApiProvider[]>([]);
+  const [services, setServices] = useState<ServiceStatusMap>({});
+  const [health, setHealth] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -92,9 +28,15 @@ export default function ApiStatus() {
     setLoading(true);
     setError("");
     try {
-      setProviders(await fetchProviderCatalog());
+      const [nextProviders, nextHealth] = await Promise.all([
+        fetchProviderCatalog(),
+        fetchHealth(),
+      ]);
+      setProviders(nextProviders);
+      setServices(nextHealth.services);
+      setHealth(nextHealth.status);
     } catch (requestError) {
-      setError(errorMessage(requestError));
+      setError(diagnosticErrorMessage(requestError));
     } finally {
       setLoading(false);
     }
@@ -104,61 +46,82 @@ export default function ApiStatus() {
     void refresh();
   }, [refresh]);
 
-  const services = useMemo(
-    () =>
-      serviceGroups.map((group) => ({
-        title: group.title,
-        status: groupStatus(providers, group.providerIds),
-      })),
-    [providers],
-  );
-
   return (
     <ToolPage
-      eyebrow="이용 안내"
-      title="교통정보 안내"
-      description="버스와 교통 서비스별 이용 가능 여부를 확인할 수 있습니다."
+      eyebrow="개발자 도구"
+      title="서비스 진단"
+      description="내부 진단 화면입니다. 정보는 읽기 전용이며 인증키 값은 표시하지 않습니다."
     >
       <div className="provider-dashboard-toolbar">
-        <p>제공 지역과 정보 갱신 시각은 서비스에 따라 다를 수 있어요.</p>
+        <p>백엔드 상태: {health || "확인 중"}</p>
         <button
           type="button"
           className="secondary-button"
           onClick={() => void refresh()}
           disabled={loading}
         >
-          새로고침
+          진단 새로고침
         </button>
       </div>
-      {loading && (
-        <p className="request-state" role="status">
-          교통정보를 확인하고 있어요.
-        </p>
-      )}
-      {error && (
-        <p className="request-state error" role="alert">
-          {error}
-        </p>
-      )}
+      {loading && <p className="request-state" role="status">진단 정보를 불러오는 중입니다.</p>}
+      {error && <p className="request-state error" role="alert">{error}</p>}
       {!loading && !error && providers.length === 0 && (
-        <p className="request-state">현재 안내할 교통정보가 없어요.</p>
+        <p className="request-state">등록된 제공기관이 없습니다.</p>
       )}
       <div className="provider-dashboard">
-        {services.map((service) => (
-          <article className="provider-card" key={service.title}>
-            <header>
-              <h2>{service.title}</h2>
-              <span
-                className={`provider-status status-${service.status.status}`}
-              >
-                {serviceStatusLabel(service.status.status)}
-              </span>
-            </header>
-            <p className="provider-notes">
-              {lastSuccessLabel(service.status)}
-            </p>
-          </article>
-        ))}
+        {providers.map((provider) => {
+          const serviceStatus = services[provider.id] ?? provider.status;
+          return (
+            <article className="provider-card" key={provider.id}>
+              <header>
+                <div>
+                  <span className="eyebrow">{provider.category}</span>
+                  <h2>{provider.name}</h2>
+                  <p>{provider.provider}</p>
+                </div>
+                <span className={`provider-status status-${serviceStatus.status}`}>
+                  {serviceStatus.status} · {serviceStatusLabel(serviceStatus.status)}
+                </span>
+              </header>
+              <dl>
+                <div><dt>제공 범위</dt><dd>{provider.scope}</dd></div>
+                <div><dt>데이터 유형</dt><dd>{provider.realtime ? "실시간" : "기준정보·통계"}</dd></div>
+                <div>
+                  <dt>인증 환경변수</dt>
+                  <dd>{provider.key_env ? `${provider.key_env} · ${provider.key_configured ? "설정됨" : "미설정"}` : "확인된 키 요구 없음"}</dd>
+                </div>
+                <div><dt>갱신·캐시</dt><dd>{provider.cadence}</dd></div>
+                <div><dt>호출 제한</dt><dd>{provider.limits}</dd></div>
+                <div><dt>마지막 성공</dt><dd>{lastSuccessLabel(serviceStatus)}</dd></div>
+                {serviceStatus.http_status != null && (
+                  <div><dt>마지막 HTTP 상태</dt><dd>{serviceStatus.http_status}</dd></div>
+                )}
+                {serviceStatus.api_result_code && (
+                  <div><dt>제공기관 결과 코드</dt><dd>{serviceStatus.api_result_code}</dd></div>
+                )}
+                {serviceStatus.response_format && (
+                  <div><dt>응답 형식</dt><dd>{serviceStatus.response_format.toUpperCase()}</dd></div>
+                )}
+                {serviceStatus.record_count != null && (
+                  <div><dt>응답 데이터 수</dt><dd>{serviceStatus.record_count}</dd></div>
+                )}
+                {serviceStatus.last_error && (
+                  <div><dt>오류·확인사항</dt><dd>{serviceStatus.last_error}</dd></div>
+                )}
+              </dl>
+              <p className="provider-notes">{provider.notes}</p>
+              <code className="provider-endpoint">{provider.endpoint}</code>
+              <footer>
+                {provider.docs_url && (
+                  <a href={provider.docs_url} target="_blank" rel="noreferrer">공식 명세</a>
+                )}
+                {provider.application_url && (
+                  <a href={provider.application_url} target="_blank" rel="noreferrer">신청·안내</a>
+                )}
+              </footer>
+            </article>
+          );
+        })}
       </div>
     </ToolPage>
   );

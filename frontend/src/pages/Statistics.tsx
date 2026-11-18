@@ -1,20 +1,14 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import RegionSelect, { type RegionCodes } from "../components/RegionSelect";
 import ApiResult from "../components/ApiResult";
-import { ApiStatusRow } from "../components/ServiceCards";
 import ToolPage from "../components/ToolPage";
 import { fetchQuarterOd } from "../services/api";
 import type { RequestState } from "../types/api";
-import type { ServiceStatusMap } from "../types/service";
 import { runRequest } from "../utils/request";
 
 const emptyRegion: RegionCodes = { sd_cd: "", sgg_cd: "", emd_cd: "" };
 
-export default function Statistics({
-  serviceStatus,
-}: {
-  serviceStatus: ServiceStatusMap;
-}) {
+export default function Statistics() {
   const [date, setDate] = useState("");
   const [origin, setOrigin] = useState(emptyRegion);
   const [destination, setDestination] = useState(emptyRegion);
@@ -90,10 +84,6 @@ export default function Statistics({
           </button>
         </form>
       </div>
-      <ApiStatusRow
-        label="이동 통계"
-        state={serviceStatus.stcis_statistics}
-      />
       <ApiResult state={state} title="이동 정보" />
     </ToolPage>
   );

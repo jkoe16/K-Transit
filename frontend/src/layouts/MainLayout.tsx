@@ -2,22 +2,13 @@ import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
-import type { ServiceStatusMap } from "../types/service";
 
-export default function MainLayout({
-  serviceStatus,
-  backendConfigured,
-}: {
-  serviceStatus: ServiceStatusMap;
-  backendConfigured: boolean;
-}) {
+export default function MainLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className="app-shell">
       <Sidebar
-        status={serviceStatus.stcis_bus_stops}
-        backendConfigured={backendConfigured}
         open={mobileMenuOpen}
         onNavigate={() => setMobileMenuOpen(false)}
       />
@@ -37,8 +28,7 @@ export default function MainLayout({
         <Outlet />
         <footer className="footer">
           <span>© 2026 K-Transit</span>
-          <span>공공 교통정보를 한곳에서 확인하세요.</span>
-          <span>제공 지역과 정보 갱신 시각은 서비스마다 다를 수 있어요.</span>
+          <span>전국 대중교통 정보를 한곳에서 확인하세요.</span>
         </footer>
       </main>
     </div>

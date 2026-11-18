@@ -4,7 +4,6 @@ import MapView, {
   type MapBounds,
   type MapPlace,
 } from "../components/MapView";
-import { ApiStatusRow } from "../components/ServiceCards";
 import ToolPage from "../components/ToolPage";
 import {
   fetchTrafficIncidents,
@@ -12,7 +11,6 @@ import {
   type TrafficIncidentsData,
 } from "../services/api";
 import type { RequestState } from "../types/api";
-import type { ServiceStatusMap } from "../types/service";
 import { runRequest } from "../utils/request";
 
 const incidentLabels: Record<string, string> = {
@@ -36,11 +34,7 @@ function trafficCount(data: unknown): number | null {
   return Number.isSafeInteger(count) && count >= 0 ? count : null;
 }
 
-export default function Map({
-  serviceStatus,
-}: {
-  serviceStatus: ServiceStatusMap;
-}) {
+export default function Map() {
   const [bounds, setBounds] = useState<MapBounds | null>(null);
   const [trafficState, setTrafficState] = useState<RequestState>({
     loading: false,
@@ -137,18 +131,6 @@ export default function Map({
         markers={incidentMarkers}
         emptyLabel={mapEmptyLabel}
         onViewportChange={onViewportChange}
-      />
-      <ApiStatusRow
-        label="실시간 버스 위치"
-        state={serviceStatus.bus_positions}
-      />
-      <ApiStatusRow
-        label="도로 교통정보"
-        state={serviceStatus.its_traffic_speed}
-      />
-      <ApiStatusRow
-        label="도로 상황"
-        state={serviceStatus.its_traffic_events}
       />
       <section className="tool-card">
         <div className="tool-card-heading">

@@ -4,10 +4,11 @@ const pageNames: Record<string, string> = {
   "/": "홈",
   "/bus": "버스 정류장",
   "/subway": "지하철",
-  "/routes": "버스 노선·길찾기",
-  "/map": "지도",
-  "/statistics": "이동 통계",
-  "/providers": "이용 안내",
+  "/routes": "길찾기",
+  "/map": "교통 지도",
+  "/statistics": "지역 이동 통계",
+  "/providers": "개발자 진단",
+  "/diagnostics": "개발자 진단",
 };
 
 export default function Header({
@@ -36,10 +37,6 @@ export default function Header({
         <span>K-Transit</span>
         <span className="crumb-slash">/</span>
         <strong>{pageNames[pathname] ?? "K-Transit"}</strong>
-      </div>
-      <div className="topbar-right">
-        <span className="scope-pill"><span /> 전국 대중교통 안내</span>
-        <span className="avatar">KT</span>
       </div>
     </header>
   );
