@@ -2,11 +2,12 @@ import { useLocation } from "react-router-dom";
 
 const pageNames: Record<string, string> = {
   "/": "홈",
-  "/bus": "버스",
+  "/bus": "버스 정류장",
   "/subway": "지하철",
-  "/routes": "경로 검색",
+  "/routes": "버스 노선·길찾기",
   "/map": "지도",
-  "/statistics": "통계",
+  "/statistics": "이동 통계",
+  "/providers": "이용 안내",
 };
 
 export default function Header({
@@ -37,7 +38,7 @@ export default function Header({
         <strong>{pageNames[pathname] ?? "K-Transit"}</strong>
       </div>
       <div className="topbar-right">
-        <span className="scope-pill"><span /> 전국 · API별 제공 범위 상이</span>
+        <span className="scope-pill"><span /> 전국 대중교통 안내</span>
         <span className="avatar">KT</span>
       </div>
     </header>

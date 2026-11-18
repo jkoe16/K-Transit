@@ -29,8 +29,8 @@ export default function SearchBar() {
       <div className="search-card-title">
         <span className="search-symbol">⌕</span>
         <div>
-          <h2>교통정보 통합 검색</h2>
-          <p>정류장 ARS 번호 또는 버스 노선명을 검색하세요.</p>
+          <h2>정류장이나 노선을 찾아보세요</h2>
+          <p>정류장, 버스 노선, 지하철역 정보를 검색할 수 있어요.</p>
         </div>
       </div>
       <form className="home-search" onSubmit={submit}>
@@ -42,12 +42,12 @@ export default function SearchBar() {
             onChange={(event) => setQuery(event.target.value)}
             placeholder={
               type === "stop-ars"
-                ? "정류장 ARS 번호"
+                ? "정류장 번호"
                 : type === "stop-name"
-                  ? "정류장명 · 지역 선택 필요"
+                  ? "정류장 이름"
                 : type === "route"
-                  ? "버스 노선명"
-                  : "지하철역명 · 연동 대기"
+                  ? "버스 노선 번호나 이름"
+                  : "지하철역 이름"
             }
           />
         </label>
@@ -57,8 +57,8 @@ export default function SearchBar() {
             value={type}
             onChange={(event) => setType(event.target.value as SearchType)}
           >
-            <option value="stop-ars">정류장 ARS</option>
-            <option value="stop-name">정류장명</option>
+            <option value="stop-ars">정류장 번호</option>
+            <option value="stop-name">정류장 이름</option>
             <option value="route">버스 노선</option>
             <option value="subway">지하철역</option>
           </select>
@@ -68,11 +68,11 @@ export default function SearchBar() {
         </button>
       </form>
       <div className="search-tags">
-        <span>바로가기</span>
+        <span>빠른 메뉴</span>
         <Link to="/bus">버스 정류장</Link>
-        <Link to="/subway">지하철 정보</Link>
-        <Link to="/routes">노선·경로</Link>
-        <Link to="/statistics">이동 통계</Link>
+        <Link to="/subway">지하철</Link>
+        <Link to="/routes">버스 노선</Link>
+        <Link to="/map">교통 지도</Link>
       </div>
     </section>
   );

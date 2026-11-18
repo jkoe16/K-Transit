@@ -16,17 +16,17 @@ export default function Subway({
   const query = searchParams.get("query")?.trim();
 
   return (
-    <ToolPage eyebrow="SUBWAY INFORMATION" title="지하철 정보" description="전국 지하철 정보를 제공하기 위한 연동 준비 상태입니다.">
+    <ToolPage eyebrow="지하철 정보" title="지하철역 찾기" description="지하철역과 노선 정보를 준비하고 있습니다.">
       <UnavailableCard
-        title={query ? `"${query}" 지하철역 검색 · 연동 대기` : "상세 명세 확인 · 연동 대기"}
-        text="TAGO 지하철정보의 실제 요청·응답 검증 전에는 역 검색이나 도착정보를 표시하지 않습니다. 실시간 지하철 도착정보는 별도 제공 API 확인이 필요합니다."
+        title={query ? `"${query}" 역 정보 준비 중` : "지하철 정보 준비 중"}
+        text="지하철역과 도착 정보를 확인할 수 있도록 준비하고 있습니다."
       />
       <ApiStatusRow label="지하철 정보" state={serviceStatus.subway} />
       <div className="tool-card source-list">
-        <h2>연동 대기 항목</h2>
-        <StatusRow label="역 검색·시간표" value="명세 확인 · 연동 대기" />
-        <StatusRow label="지하철 노선 조회" value="상세기능 확인 필요" />
-        <StatusRow label="실시간 도착정보" value="별도 API 확인 필요" />
+        <h2>이용 안내</h2>
+        <StatusRow label="지하철역 검색" value="준비 중" />
+        <StatusRow label="노선 정보" value="준비 중" />
+        <StatusRow label="도착 정보" value="준비 중" />
       </div>
     </ToolPage>
   );

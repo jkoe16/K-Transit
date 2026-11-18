@@ -127,12 +127,6 @@ export async function fetchTrafficIncidents(
   return data;
 }
 
-export function errorMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    const detail = error.response?.data?.detail;
-    return typeof detail === "string"
-      ? detail
-      : error.message || "API 요청에 실패했습니다.";
-  }
-  return error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.";
+export function errorMessage(_error: unknown): string {
+  return "정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.";
 }

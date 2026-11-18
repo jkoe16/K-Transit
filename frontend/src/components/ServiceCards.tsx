@@ -92,7 +92,7 @@ export function UnavailableCard({ title, text }: { title: string; text: string }
     <div className="unavailable-card">
       <span className="unavailable-icon">⌁</span>
       <div><strong>{title}</strong><p>{text}</p></div>
-      <span className="feature-tag tag-muted"><i />연동 대기</span>
+      <span className="feature-tag tag-muted"><i />준비 중</span>
     </div>
   );
 }

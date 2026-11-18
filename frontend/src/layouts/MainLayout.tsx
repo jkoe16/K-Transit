@@ -37,8 +37,8 @@ export default function MainLayout({
         <Outlet />
         <footer className="footer">
           <span>© 2026 K-Transit</span>
-          <span>데이터 출처: STCIS · OpenStreetMap</span>
-          <span>API별 제공 지역과 갱신 주기가 다를 수 있습니다.</span>
+          <span>공공 교통정보를 한곳에서 확인하세요.</span>
+          <span>제공 지역과 정보 갱신 시각은 서비스마다 다를 수 있어요.</span>
         </footer>
       </main>
     </div>

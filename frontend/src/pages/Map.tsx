@@ -1,6 +1,9 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useCallback, useMemo, useState, type FormEvent } from "react";
 import ApiResult from "../components/ApiResult";
-import MapView, { type MapPlace } from "../components/MapView";
+import MapView, {
+  type MapBounds,
+  type MapPlace,
+} from "../components/MapView";
 import { ApiStatusRow } from "../components/ServiceCards";
 import ToolPage from "../components/ToolPage";
 import {
@@ -12,17 +15,33 @@ import type { RequestState } from "../types/api";
 import type { ServiceStatusMap } from "../types/service";
 import { runRequest } from "../utils/request";
 
+const incidentLabels: Record<string, string> = {
+  acc: "교통사고",
+  cor: "공사",
+  wea: "기상 상황",
+  dis: "재난",
+  ete: "기타 상황",
+  etc: "기타 상황",
+};
+
+function incidentLabel(value: string | null): string {
+  return value ? incidentLabels[value] ?? "도로 상황" : "도로 상황";
+}
+
+function trafficCount(data: unknown): number | null {
+  if (!data || typeof data !== "object" || !("totalCount" in data)) {
+    return null;
+  }
+  const count = Number((data as { totalCount: unknown }).totalCount);
+  return Number.isSafeInteger(count) && count >= 0 ? count : null;
+}
+
 export default function Map({
   serviceStatus,
 }: {
   serviceStatus: ServiceStatusMap;
 }) {
-  const [bounds, setBounds] = useState({
-    minX: "",
-    maxX: "",
-    minY: "",
-    maxY: "",
-  });
+  const [bounds, setBounds] = useState<MapBounds | null>(null);
   const [trafficState, setTrafficState] = useState<RequestState>({
     loading: false,
     error: "",
@@ -36,6 +55,10 @@ export default function Map({
     error: "",
     result: null,
   });
+  const onViewportChange = useCallback((nextBounds: MapBounds) => {
+    setBounds(nextBounds);
+  }, []);
+
   const incidentMarkers = useMemo(() => {
     const markers: MapPlace[] = [];
     const incidents = incidentState.result?.data.items ?? [];
@@ -52,95 +75,117 @@ export default function Map({
       ) {
         return;
       }
-      const detail = [
-        incident.eventType,
-        incident.eventDetailType,
-        incident.message,
-        incident.startDate,
-      ]
+      const detail = [incidentLabel(incident.eventType), incident.message]
         .filter((value): value is string => Boolean(value))
         .join(" · ");
       markers.push({
         id: incident.linkId || `${incident.startDate || "incident"}-${index}`,
         coordinates: [longitude, latitude],
-        title: incident.roadName || incident.eventType || "ITS 돌발상황",
+        title: incident.roadName || incidentLabel(incident.eventType),
         detail,
         kind: "incident",
       });
     });
     return markers;
   }, [incidentState.result]);
-  const mapEmptyLabel = incidentState.loading
-    ? "돌발상황 정보를 불러오는 중입니다."
-    : incidentState.error
-      ? "돌발상황 조회에 실패했습니다."
-      : incidentState.result
-        ? "표시할 돌발상황 좌표가 없습니다."
-        : "돌발상황을 조회하면 제공된 좌표를 지도에 표시합니다.";
 
-  async function searchTraffic(event: FormEvent) {
+  const mapEmptyLabel = incidentState.loading
+    ? "도로 상황을 불러오고 있어요."
+    : incidentState.error
+      ? "도로 상황을 불러오지 못했어요."
+      : incidentState.result
+        ? "표시할 도로 상황이 없어요."
+        : "도로 상황을 조회하면 지도에 표시돼요.";
+
+  function searchTraffic(event: FormEvent) {
     event.preventDefault();
-    const params = {
-      type: "all",
-      drcType: "all",
-      ...bounds,
-    };
-    await runRequest(setTrafficState, () => fetchTrafficSpeed(params));
+    if (!bounds) {
+      setTrafficState({
+        loading: false,
+        error: "지도를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.",
+        result: null,
+      });
+      return;
+    }
+
+    void runRequest(setTrafficState, () =>
+      fetchTrafficSpeed({
+        type: "all",
+        drcType: "all",
+        minX: String(bounds.minX),
+        maxX: String(bounds.maxX),
+        minY: String(bounds.minY),
+        maxY: String(bounds.maxY),
+      }),
+    );
   }
 
-  async function searchIncidents(event: FormEvent) {
+  function searchIncidents(event: FormEvent) {
     event.preventDefault();
-    await runRequest(setIncidentState, () =>
+    void runRequest(setIncidentState, () =>
       fetchTrafficIncidents({ type: "all", eventType: incidentType }),
     );
   }
 
   return (
-    <ToolPage eyebrow="NATIONWIDE MAP" title="전국 교통 지도" description="OpenFreeMap의 한국어 지도 스타일을 사용합니다. 출처를 표시하며, 검증된 좌표가 있는 교통정보만 마커로 표시합니다.">
-      <MapView markers={incidentMarkers} emptyLabel={mapEmptyLabel} />
+    <ToolPage
+      eyebrow="교통 지도"
+      title="전국 교통 지도"
+      description="지도를 움직여 주변 도로 상황과 교통정보를 확인하세요."
+    >
+      <MapView
+        markers={incidentMarkers}
+        emptyLabel={mapEmptyLabel}
+        onViewportChange={onViewportChange}
+      />
       <ApiStatusRow
         label="실시간 버스 위치"
         state={serviceStatus.bus_positions}
       />
       <ApiStatusRow
-        label="ITS 도로 교통속도"
+        label="도로 교통정보"
         state={serviceStatus.its_traffic_speed}
       />
       <ApiStatusRow
-        label="ITS 돌발상황"
+        label="도로 상황"
         state={serviceStatus.its_traffic_events}
       />
       <section className="tool-card">
         <div className="tool-card-heading">
           <span className="tool-card-icon">↗</span>
           <div>
-            <h2>도로 교통속도 조회</h2>
-            <p>ITS 공식 API의 범위 변수입니다. 좌표계는 제공처 문서 확인 전 임의 변환하지 않습니다.</p>
+            <h2>현재 지도 주변 교통정보</h2>
+            <p>지도를 옮기거나 확대해 조회할 지역을 선택할 수 있어요.</p>
           </div>
         </div>
-        <form className="form-grid" onSubmit={searchTraffic}>
-          <label>최소 X<input inputMode="decimal" value={bounds.minX} onChange={(event) => setBounds({ ...bounds, minX: event.target.value })} required /></label>
-          <label>최대 X<input inputMode="decimal" value={bounds.maxX} onChange={(event) => setBounds({ ...bounds, maxX: event.target.value })} required /></label>
-          <label>최소 Y<input inputMode="decimal" value={bounds.minY} onChange={(event) => setBounds({ ...bounds, minY: event.target.value })} required /></label>
-          <label>최대 Y<input inputMode="decimal" value={bounds.maxY} onChange={(event) => setBounds({ ...bounds, maxY: event.target.value })} required /></label>
-          <button className="primary-button form-submit" disabled={trafficState.loading}>
-            도로 속도 조회 <span>→</span>
+        <form className="inline-form" onSubmit={searchTraffic}>
+          <button
+            className="primary-button"
+            disabled={trafficState.loading || !bounds}
+          >
+            주변 교통정보 찾기 <span>→</span>
           </button>
         </form>
-        <p className="form-hint">응답은 도로명·링크 ID·속도 등 공식 출력 필드이며, 선형 좌표가 없어 지도에 도로 혼잡선을 그리지 않습니다.</p>
+        {trafficState.result && (
+          <p className="map-result-summary" aria-live="polite">
+            {trafficCount(trafficState.result.data) === null
+              ? "현재 지도 주변의 교통정보를 확인했어요."
+              : `현재 지도 주변 교통정보 ${trafficCount(trafficState.result.data)}건을 찾았어요.`}
+          </p>
+        )}
+        <ApiResult state={trafficState} title="주변 교통정보" />
       </section>
-      <ApiResult state={trafficState} title="ITS 교통소통 응답" />
       <section className="tool-card">
         <div className="tool-card-heading">
           <span className="tool-card-icon">!</span>
           <div>
-            <h2>도로 돌발상황 조회</h2>
-            <p>ITS가 제공하는 사고·공사·기상 등 이벤트를 조회합니다. 제공된 경도·위도 좌표가 검증된 항목만 지도에 표시합니다.</p>
+            <h2>도로 상황 확인</h2>
+            <p>사고, 공사, 기상 등 실제로 확인된 상황을 살펴보세요.</p>
           </div>
         </div>
         <form className="inline-form" onSubmit={searchIncidents}>
           <label className="form-field">
-            이벤트 유형
+            상황 종류
             <select
               value={incidentType}
               onChange={(event) => setIncidentType(event.target.value)}
@@ -148,25 +193,25 @@ export default function Map({
               <option value="all">전체</option>
               <option value="acc">교통사고</option>
               <option value="cor">공사</option>
-              <option value="wea">기상</option>
+              <option value="wea">기상 상황</option>
               <option value="dis">재난</option>
-              <option value="ete">기타 돌발</option>
+              <option value="ete">기타 상황</option>
             </select>
           </label>
           <button
             className="primary-button"
             disabled={incidentState.loading}
           >
-            돌발상황 조회 <span>→</span>
+            도로 상황 찾기 <span>→</span>
           </button>
         </form>
       </section>
-      <ApiResult state={incidentState} title="ITS 돌발상황 응답" />
+      <ApiResult state={incidentState} title="도로 상황 정보" />
       <div className="map-legend">
-        <span><i className="legend-bus" />버스 위치 · 연동 대기</span>
-        <span><i className="legend-stop" />정류장 · 좌표 미확인</span>
-        <span><i className="legend-station" />지하철역 · 연동 대기</span>
-        <span><i className="legend-incident" />도로 돌발상황</span>
+        <span><i className="legend-bus" />버스 위치</span>
+        <span><i className="legend-stop" />정류장</span>
+        <span><i className="legend-station" />지하철역</span>
+        <span><i className="legend-incident" />도로 상황</span>
       </div>
     </ToolPage>
   );

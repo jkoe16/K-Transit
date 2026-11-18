@@ -1,44 +1,100 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
-import { fetchQuarterOd } from "../services/api";
-import type { RequestState } from "../types/api";
+import RegionSelect, { type RegionCodes } from "../components/RegionSelect";
 import ApiResult from "../components/ApiResult";
 import { ApiStatusRow } from "../components/ServiceCards";
 import ToolPage from "../components/ToolPage";
-import { runRequest } from "../utils/request";
+import { fetchQuarterOd } from "../services/api";
+import type { RequestState } from "../types/api";
 import type { ServiceStatusMap } from "../types/service";
+import { runRequest } from "../utils/request";
+
+const emptyRegion: RegionCodes = { sd_cd: "", sgg_cd: "", emd_cd: "" };
 
 export default function Statistics({
   serviceStatus,
 }: {
   serviceStatus: ServiceStatusMap;
 }) {
-  const [form, setForm] = useState({ oprat_date: "", stg_emd_cd: "", arr_emd_cd: "" });
-  const [state, setState] = useState<RequestState>({ loading: false, error: "", result: null });
-  const update = (key: keyof typeof form) => (event: ChangeEvent<HTMLInputElement>) =>
-    setForm({ ...form, [key]: event.target.value });
+  const [date, setDate] = useState("");
+  const [origin, setOrigin] = useState(emptyRegion);
+  const [destination, setDestination] = useState(emptyRegion);
+  const [state, setState] = useState<RequestState>({
+    loading: false,
+    error: "",
+    result: null,
+  });
 
-  async function submit(event: FormEvent) {
+  function submit(event: FormEvent) {
     event.preventDefault();
-    await runRequest(setState, () => fetchQuarterOd(form));
+    if (!date || !origin.emd_cd || !destination.emd_cd) {
+      setState({
+        loading: false,
+        error: "날짜와 출발지·도착지를 선택해 주세요.",
+        result: null,
+      });
+      return;
+    }
+
+    void runRequest(setState, () =>
+      fetchQuarterOd({
+        oprat_date: date,
+        stg_emd_cd: origin.emd_cd,
+        arr_emd_cd: destination.emd_cd,
+      }),
+    );
+  }
+
+  function updateDate(event: ChangeEvent<HTMLInputElement>) {
+    setDate(event.target.value);
   }
 
   return (
-    <ToolPage eyebrow="TRANSPORT STATISTICS" title="15분 단위 이동 통계" description="STCIS quarterod API를 호출해 출발·도착 읍면동 간 OD 데이터를 조회합니다.">
+    <ToolPage
+      eyebrow="이동 정보"
+      title="지역 간 이동 정보"
+      description="날짜와 출발지, 도착지를 선택해 이동 정보를 확인하세요."
+    >
       <div className="tool-card">
-        <div className="tool-card-heading"><span className="tool-card-icon">▥</span><div><h2>통계 조회 조건</h2><p>필수 입력값은 STCIS API 요청변수에 전달됩니다.</p></div></div>
+        <div className="tool-card-heading">
+          <span className="tool-card-icon">▥</span>
+          <div>
+            <h2>검색 조건</h2>
+            <p>날짜와 읍·면·동을 선택해 주세요.</p>
+          </div>
+        </div>
         <form className="form-grid stats-form" onSubmit={submit}>
-          <label>운행일자 (opratDate)<input value={form.oprat_date} onChange={update("oprat_date")} placeholder="STCIS 명세의 날짜 형식" required /></label>
-          <label>출발 읍면동 코드<input value={form.stg_emd_cd} onChange={update("stg_emd_cd")} required /></label>
-          <label>도착 읍면동 코드<input value={form.arr_emd_cd} onChange={update("arr_emd_cd")} required /></label>
-          <button className="primary-button form-submit" disabled={state.loading}>통계 조회 <span>→</span></button>
+          <label className="form-span">
+            날짜
+            <input
+              value={date}
+              onChange={updateDate}
+              placeholder="날짜 입력"
+              required
+            />
+          </label>
+          <RegionSelect
+            label="출발 지역"
+            value={origin}
+            onChange={setOrigin}
+          />
+          <RegionSelect
+            label="도착 지역"
+            value={destination}
+            onChange={setDestination}
+          />
+          <button
+            className="primary-button form-submit"
+            disabled={state.loading}
+          >
+            이동 정보 찾기 <span>→</span>
+          </button>
         </form>
-        <p className="form-hint">운행일자 값은 변환하지 않고 그대로 전달합니다. 날짜 형식과 응답 필드는 실제 API 명세·응답 확인 후 정리합니다.</p>
       </div>
       <ApiStatusRow
-        label="STCIS 15분 OD 통계"
+        label="이동 통계"
         state={serviceStatus.stcis_statistics}
       />
-      <ApiResult state={state} />
+      <ApiResult state={state} title="이동 정보" />
     </ToolPage>
   );
 }

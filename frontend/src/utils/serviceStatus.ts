@@ -3,35 +3,29 @@ import type { ServiceStatus } from "../types/service";
 export function serviceStatusLabel(status: ServiceStatus["status"]): string {
   switch (status) {
     case "connected":
-      return "연결 정상";
+      return "이용 가능";
     case "error":
-      return "연결 오류";
-    case "key_required":
-      return "인증키 설정 필요";
     case "auth_error":
-      return "인증키 오류";
-    case "approval_pending":
-      return "승인 대기";
-    case "application_required":
-      return "신청 필요";
-    case "endpoint_unknown":
-      return "API 주소 미확인";
     case "invalid_response":
-      return "응답 형식 오류";
-    case "no_data":
-      return "데이터 없음";
-    case "region_limited":
-      return "제공 지역 제한";
+      return "잠시 이용할 수 없어요";
+    case "key_required":
+    case "approval_pending":
+    case "application_required":
+    case "endpoint_unknown":
     case "review_required":
-      return "명세 확인 필요";
+      return "준비 중";
+    case "no_data":
+      return "표시할 정보가 없어요";
+    case "region_limited":
+      return "일부 지역에서 이용할 수 있어요";
     default:
-      return "연동 대기";
+      return "정보 확인 중";
   }
 }
 
 export function lastSuccessLabel(state: ServiceStatus): string {
-  if (!state.last_success_at) return "성공 조회 기록 없음";
+  if (!state.last_success_at) return "아직 갱신된 정보가 없어요";
   const date = new Date(state.last_success_at);
-  if (Number.isNaN(date.getTime())) return "성공 조회 시각 확인 불가";
-  return `최근 성공 ${date.toLocaleString("ko-KR")}`;
+  if (Number.isNaN(date.getTime())) return "정보 갱신 시각을 확인할 수 없어요";
+  return `정보 갱신 ${date.toLocaleString("ko-KR")}`;
 }

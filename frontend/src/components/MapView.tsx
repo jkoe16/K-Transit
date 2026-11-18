@@ -18,16 +18,25 @@ export type MapPlace = {
   kind: "bus" | "stop" | "subway" | "incident";
 };
 
+export type MapBounds = {
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+};
+
 type MapViewProps = {
   compact?: boolean;
   emptyLabel?: string;
   markers?: MapPlace[];
+  onViewportChange?: (bounds: MapBounds) => void;
 };
 
 export default function MapView({
   compact = false,
-  emptyLabel = "교통 위치 좌표 API 연동 대기",
+  emptyLabel = "지도에서 확인할 교통정보가 없어요.",
   markers = EMPTY_MARKERS,
+  onViewportChange,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
@@ -65,6 +74,15 @@ export default function MapView({
       }),
       "bottom-right",
     );
+    const reportBounds = () => {
+      const bounds = map.getBounds();
+      onViewportChange?.({
+        minX: bounds.getWest(),
+        maxX: bounds.getEast(),
+        minY: bounds.getSouth(),
+        maxY: bounds.getNorth(),
+      });
+    };
 
     map.once("load", () => {
       if (!active) return;
@@ -75,21 +93,22 @@ export default function MapView({
       }
       setMapReady(true);
       setMapError("");
+      reportBounds();
     });
-    map.on("error", (event) => {
+    map.on("moveend", reportBounds);
+    map.on("error", () => {
       if (!active) return;
-      setMapError(
-        `한국어 지도 타일을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요. (${event.error.message})`,
-      );
+      setMapError("지도를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.");
     });
 
     return () => {
       active = false;
+      map.off("moveend", reportBounds);
       map.remove();
       mapRef.current = null;
       setMapReady(false);
     };
-  }, [compact]);
+  }, [compact, onViewportChange]);
 
   useEffect(() => {
     const map = mapRef.current;

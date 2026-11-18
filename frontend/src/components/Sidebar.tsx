@@ -6,10 +6,10 @@ const navigation = [
   { to: "/", label: "홈", icon: "⌂" },
   { to: "/bus", label: "버스", icon: "▰" },
   { to: "/subway", label: "지하철", icon: "▤" },
-  { to: "/routes", label: "경로 검색", icon: "↗" },
+  { to: "/routes", label: "버스 노선", icon: "↗" },
   { to: "/map", label: "지도", icon: "◎" },
-  { to: "/statistics", label: "통계", icon: "▥" },
-  { to: "/providers", label: "API 현황", icon: "API" },
+  { to: "/statistics", label: "이동 통계", icon: "▥" },
+  { to: "/providers", label: "이용 안내", icon: "i" },
 ];
 
 export default function Sidebar({
@@ -32,7 +32,7 @@ export default function Sidebar({
           <small>전국 대중교통 통합정보</small>
         </span>
       </Link>
-      <div className="side-label">서비스</div>
+      <div className="side-label">교통 서비스</div>
       <nav className="nav-list" aria-label="주요 메뉴">
         {navigation.map((item) => (
           <NavLink
@@ -51,10 +51,10 @@ export default function Sidebar({
         <div className="sidebar-status">
           <span className={`status-dot ${status?.status === "connected" ? "live" : ""}`} />
           <div>
-            <strong>데이터 연결 상태</strong>
+            <strong>교통정보 이용</strong>
             <small>
               {!backendConfigured
-                ? "백엔드 주소 설정 필요"
+                ? "정보 확인 중"
                 : serviceStatusLabel(status?.status ?? "waiting")}
             </small>
           </div>
