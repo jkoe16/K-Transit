@@ -1,4 +1,5 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
+import { Link } from "react-router-dom";
 import { fetchQuarterOd } from "../services/api";
 import type { RequestState } from "../types/api";
 import ApiResult from "../components/ApiResult";
@@ -26,7 +27,7 @@ export default function Statistics() {
           <label>도착 읍면동 코드<input value={form.arr_emd_cd} onChange={update("arr_emd_cd")} required /></label>
           <button className="primary-button form-submit" disabled={state.loading}>통계 조회 <span>→</span></button>
         </form>
-        <p className="form-hint">차트와 표는 검증된 응답 필드 확인 후 추가됩니다. 현재는 실제 API 원본 응답을 표시합니다.</p>
+        <p className="form-hint">읍면동 코드를 모르면 <Link to="/bus">버스 화면의 지역코드 조회</Link>로 먼저 확인하세요. 차트는 검증된 응답 필드 확인 후 추가되며, 현재는 응답을 표와 원본 JSON으로 보여줍니다.</p>
       </div>
       <ApiResult state={state} />
     </ToolPage>

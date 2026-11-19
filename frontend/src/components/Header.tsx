@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
 const pageNames: Record<string, string> = {
@@ -11,6 +12,13 @@ const pageNames: Record<string, string> = {
 
 export default function Header() {
   const { pathname } = useLocation();
+
+  useEffect(() => {
+    const name = pageNames[pathname];
+    document.title = name && pathname !== "/"
+      ? `${name} | K-Transit`
+      : "K-Transit | 전국 대중교통 통합정보";
+  }, [pathname]);
 
   return (
     <header className="topbar">

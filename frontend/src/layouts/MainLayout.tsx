@@ -11,7 +11,7 @@ export default function MainLayout({ stcisStatus }: { stcisStatus: string }) {
         <Outlet />
         <footer className="footer">
           <span>© 2026 K-Transit</span>
-          <span>데이터 출처: STCIS · OpenStreetMap</span>
+          <span>데이터 출처: STCIS · TAGO · OpenStreetMap</span>
           <span>API별 제공 지역과 갱신 주기가 다를 수 있습니다.</span>
         </footer>
       </main>
