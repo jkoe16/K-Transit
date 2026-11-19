@@ -56,6 +56,24 @@ export async function fetchRouteStops(routeId: string) {
   return data;
 }
 
+export async function fetchSubwayStations(params: Record<string, string>) {
+  requireBackendUrl();
+  const { data } = await api.get<ApiEnvelope>("/api/subway/stations", { params });
+  return data;
+}
+
+export async function fetchSubwayTimetable(params: Record<string, string>) {
+  requireBackendUrl();
+  const { data } = await api.get<ApiEnvelope>("/api/subway/timetable", { params });
+  return data;
+}
+
+export async function fetchBusArrivals(params: Record<string, string>) {
+  requireBackendUrl();
+  const { data } = await api.get<ApiEnvelope>("/api/bus/arrivals", { params });
+  return data;
+}
+
 export async function fetchQuarterOd(params: Record<string, string>) {
   requireBackendUrl();
   const { data } = await api.get<ApiEnvelope>("/api/statistics/quarter-od", {

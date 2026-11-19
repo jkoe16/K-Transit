@@ -13,6 +13,7 @@ def get_settings() -> "Settings":
 
 class Settings:
     stcis_api_key: str = os.getenv("STCIS_API_KEY", "").strip()
+    tago_api_key: str = os.getenv("TAGO_API_KEY", "").strip()
     redis_url: str = os.getenv("REDIS_URL", "").strip()
     api_cache_ttl_seconds: int = max(0, int(os.getenv("API_CACHE_TTL_SECONDS", "60")))
     cors_origins: list[str] = [

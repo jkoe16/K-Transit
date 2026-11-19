@@ -1,9 +1,8 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
-import { fetchRegions, fetchStops } from "../services/api";
+import { fetchBusArrivals, fetchRegions, fetchStops } from "../services/api";
 import type { RequestState } from "../types/api";
 import ApiResult from "../components/ApiResult";
-import { UnavailableCard } from "../components/ServiceCards";
 import ToolPage from "../components/ToolPage";
 import { runRequest } from "../utils/request";
 
@@ -19,7 +18,9 @@ export default function Bus() {
   });
   const [state, setState] = useState<RequestState>(initialState);
   const [regionState, setRegionState] = useState<RequestState>(initialState);
-  const update = (key: keyof typeof form) => (event: ChangeEvent<HTMLInputElement>) =>
+  const [arrival, setArrival] = useState({ city_code: "", node_id: "" });
+  const [arrivalState, setArrivalState] = useState<RequestState>(initialState);
+  const update =(key: keyof typeof form) => (event: ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [key]: event.target.value });
 
   async function submit(event: FormEvent) {
@@ -35,6 +36,17 @@ export default function Bus() {
       Object.entries({ sd_cd: form.sd_cd, sgg_cd: form.sgg_cd }).filter(([, value]) => value.trim()),
     );
     await runRequest(setRegionState, () => fetchRegions(params));
+  }
+
+  async function loadArrivals(event: FormEvent) {
+    event.preventDefault();
+    if (!arrival.city_code.trim() || !arrival.node_id.trim()) return;
+    await runRequest(setArrivalState, () =>
+      fetchBusArrivals({
+        city_code: arrival.city_code.trim(),
+        node_id: arrival.node_id.trim(),
+      }),
+    );
   }
 
   return (
@@ -55,7 +67,18 @@ export default function Bus() {
       </div>
       <ApiResult state={state} />
       <ApiResult state={regionState} title="지역코드 조회 결과" />
-      <UnavailableCard title="도착 예정정보" text="TAGO 버스 도착정보 API의 공식 경로와 주요 요청변수는 확인했으며, 정류장 ID 연결과 실제 호출 검증 후 연동합니다." />
+      <div className="tool-card">
+        <div className="tool-card-heading"><span className="tool-card-icon">◷</span><div><h2>버스 도착 예정정보</h2><p>TAGO 도시코드와 정류소 ID(nodeId)를 입력하세요. STCIS 정류장 번호와는 체계가 달라 자동 연결되지 않습니다.</p></div></div>
+        <form className="form-grid" onSubmit={loadArrivals}>
+          <label>도시코드<input value={arrival.city_code} onChange={(event) => setArrival({ ...arrival, city_code: event.target.value })} placeholder="TAGO 도시코드" required /></label>
+          <label>정류소 ID<input value={arrival.node_id} onChange={(event) => setArrival({ ...arrival, node_id: event.target.value })} placeholder="nodeId" required /></label>
+          <div className="form-actions">
+            <button className="primary-button form-submit" disabled={arrivalState.loading}>도착정보 조회 <span>→</span></button>
+          </div>
+        </form>
+        <p className="form-hint">응답 필드는 공식 명세와 대조 전(미검증)이므로 원본 응답을 그대로 표시합니다.</p>
+      </div>
+      <ApiResult state={arrivalState} title="도착 예정정보 결과" />
     </ToolPage>
   );
 }
