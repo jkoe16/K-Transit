@@ -119,8 +119,8 @@ GitHub Pages는 React 프런트엔드만 호스팅하며 FastAPI 서버를 실�
 | STCIS | `/openapi/rlrdroutesttn.json` 노선 경유지 | 연동 |
 | STCIS | `/openapi/quarterod.json` 15분 OD | 연동 |
 | 한국지역정보개발원 | `https://apis.data.go.kr/B551982/rte` 초정밀버스 위치 | 상세기능/요청변수/응답/좌표계 확인 전 미연동 |
-| TAGO 지하철정보 | `https://apis.data.go.kr/1613000/SubwayInfo` | 역 검색·시간표 명세 확인, 애플리케이션 연동 대기 |
-| TAGO 버스 도착정보 | `https://apis.data.go.kr/1613000/ArvlInfoInqireService` | 공식 명세 확인, 애플리케이션 연동 대기 |
+| TAGO 지하철정보 | `https://apis.data.go.kr/1613000/SubwayInfo` | 역 검색·시간표 연동(오퍼레이션·요청변수 **실제 응답 미검증**) |
+| TAGO 버스 도착정보 | `https://apis.data.go.kr/1613000/ArvlInfoInqireService` | 정류소별 도착정보 연동(오퍼레이션·요청변수 **실제 응답 미검증**) |
 
 TAGO 버스 도착정보의 공식 서비스 경로는 `ArvlInfoInqireService`입니다. 전달받은 `ArvlInfoInqireServiced`의 마지막 `d`는 공식 포털에 게시된 호출 주소와 일치하지 않습니다. 상세 명세에는 정류소별 도착정보 기능, 필수 `serviceKey`, `cityCode`, `nodeId` 등이 기재되어 있습니다. 공식 자료: [국토교통부(TAGO) 버스도착정보](https://www.data.go.kr/data/15098530/openapi.do), [국토교통부(TAGO) 지하철정보](https://www.data.go.kr/data/15098554/openapi.do).
 
@@ -131,7 +131,12 @@ TAGO 버스 도착정보의 공식 서비스 경로는 `ArvlInfoInqireService`�
 - `GET /api/bus/stops`, `GET /api/bus/stops/{stop_id}`
 - `GET /api/bus/routes?route_nm=...`, `GET /api/bus/routes/{route_id}/stops`
 - `GET /api/statistics/quarter-od`
-- 버스 위치/도착정보, 지하철, 경로 검색 API 경로는 명세 확인 전 `501` 반환
+- `GET /api/subway/stations?station_name=...` (TAGO 지하철역 검색)
+- `GET /api/subway/timetable?station_id=...&daily_type_code=...&up_down_type_code=...` (TAGO 역별 시간표)
+- `GET /api/bus/arrivals?city_code=...&node_id=...` (TAGO 정류소별 도착정보)
+- 버스 위치, 지하철 노선·실시간 도착, 경로 검색 API 경로는 명세 확인 전 `501` 반환
+
+TAGO 연동은 STCIS와 마찬가지로 응답을 내부 스키마로 변환하지 않고 원본 JSON을 전달합니다. 서비스 경로·오퍼레이션 이름·요청변수·요일/상하행 코드값(`01`/`02`/`03`, `U`/`D`)은 실제 인증키로 응답을 확인하기 전까지 **미검증**이며, 확인 후 `backend/app/services/tago_service.py`의 안내 주석을 제거합니다. 포털에서 받은 인코딩 키(`%2B` 등)를 `TAGO_API_KEY`에 넣어도 한 번 디코딩해서 호출합니다.
 
 STCIS의 응답 필드는 실제 키로 응답 샘플을 검증하기 전까지 임의의 내부 스키마로 변환하지 않고 원본 JSON을 전달합니다. 지도에는 OpenStreetMap 배경만 표시하며 교통 데이터 좌표가 확인되지 않아 임의의 마커를 만들지 않습니다.
 
@@ -149,7 +154,7 @@ STCIS의 응답 필드는 실제 키로 응답 샘플을 검증하기 전까지 
 1. 프로젝트 구조, 반응형 화면, FastAPI 서버, Docker 개발 인프라 구성
 2. STCIS 지역·정류장·노선 경유지·OD API의 백엔드 프록시 구성
 3. 실제 인증키로 응답 필드·제공 지역 확인 및 프런트엔드 결과 구조 정리
-4. 공식 TAGO 상세 명세에 따른 버스 도착 및 지하철 역/시간표 API 연결
+4. TAGO 버스 도착 및 지하철 역/시간표 API 연결 완료(실제 응답·필드 검증 대기)
 5. KLID 위치 API 상세기능·좌표계 확인 후 지도 마커 연결
 6. 실시간 지하철 도착 및 대중교통 경로 검색 API 확보 후 연결
 7. 통계 응답 구조 검증 후 차트/표 구현, 테스트·배포 준비

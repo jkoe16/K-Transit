@@ -31,14 +31,16 @@ app.include_router(statistics.router)
 @app.get("/health", tags=["system"])
 @app.get("/api/health", tags=["system"])
 async def health() -> dict[str, object]:
+    tago = "configured" if settings.tago_api_key else "not_configured"
     return {
         "status": "ok",
         "services": {
             "stcis": "configured" if settings.stcis_api_key else "not_configured",
-            "subway": "not_integrated",
+            "tago": tago,
+            "subway": tago,
+            "subway_timetable": tago,
+            "bus_arrivals": tago,
             "route_search": "not_integrated",
             "bus_positions": "not_integrated",
-            "bus_arrivals": "not_integrated",
-            "subway_timetable": "not_integrated",
         },
     }
