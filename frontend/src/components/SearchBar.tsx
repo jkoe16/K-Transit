@@ -17,7 +17,7 @@ export default function SearchBar() {
         <span className="search-symbol">⌕</span>
         <div>
           <h2>어디로 이동하시나요?</h2>
-          <p>버스 정류장 또는 노선 경유지를 검색하세요.</p>
+          <p>정류장 ARS 번호로 버스 정류장을 바로 조회합니다. 노선·통계는 아래 빠른 메뉴를 이용하세요.</p>
         </div>
       </div>
       <form className="home-search" onSubmit={submit}>

@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import { fetchBusArrivals, fetchRegions, fetchStops } from "../services/api";
 import type { RequestState } from "../types/api";
@@ -20,7 +20,16 @@ export default function Bus() {
   const [regionState, setRegionState] = useState<RequestState>(initialState);
   const [arrival, setArrival] = useState({ city_code: "", node_id: "" });
   const [arrivalState, setArrivalState] = useState<RequestState>(initialState);
-  const update =(key: keyof typeof form) => (event: ChangeEvent<HTMLInputElement>) =>
+  const urlArsno = searchParams.get("sttn_arsno")?.trim() ?? "";
+
+  // 홈 화면 검색에서 넘어온 ARS 번호는 입력 칸에 채우고 바로 조회한다.
+  useEffect(() => {
+    if (!urlArsno) return;
+    setForm((current) => ({ ...current, sttn_arsno: urlArsno }));
+    void runRequest(setState, () => fetchStops({ sttn_arsno: urlArsno }));
+  }, [urlArsno]);
+
+  const update = (key: keyof typeof form) => (event: ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [key]: event.target.value });
 
   async function submit(event: FormEvent) {

@@ -1,4 +1,5 @@
-import { Link, NavLink } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, NavLink, useLocation } from "react-router-dom";
 
 const navigation = [
   { to: "/", label: "홈", icon: "⌂" },
@@ -10,6 +11,15 @@ const navigation = [
 ];
 
 export default function Sidebar({ stcisStatus }: { stcisStatus: string }) {
+  const { pathname } = useLocation();
+
+  // 모바일에서 가로 스크롤되는 메뉴가 현재 항목을 가리지 않도록 맞춰 준다.
+  useEffect(() => {
+    document
+      .querySelector(".nav-item.active")
+      ?.scrollIntoView?.({ inline: "center", block: "nearest" });
+  }, [pathname]);
+
   return (
     <aside className="sidebar">
       <Link className="brand" to="/" aria-label="K-Transit 홈">
